@@ -1,0 +1,65 @@
+
+def is_safe(processes, available, max_demand, allocation):
+    n = len(processes)
+    m = len(available)
+
+    need = [[max_demand[i][j] - allocation[i][j] for j in range(m)] for i in range(n)]
+
+    print("\nNeed Matrix:")
+    for i in range(n):
+        print(processes[i], ":", need[i])
+
+    finish = [False] * n
+    safe_sequence = []
+    work = available.copy()
+
+    while len(safe_sequence) < n:
+        found = False
+        for i in range(n):
+            if not finish[i]:
+                if all(need[i][j] <= work[j] for j in range(m)):
+                    for j in range(m):
+                        work[j] += allocation[i][j]
+
+                    safe_sequence.append(processes[i])
+                    finish[i] = True
+                    found = True
+
+        if not found:
+            return False, []
+
+    return True, safe_sequence
+
+#u59
+# -------- INPUT --------
+n = int(input("Enter number of processes: "))
+m = int(input("Enter number of resources: "))
+
+processes = [f"P{i}" for i in range(n)]
+
+print("\nEnter Allocation Matrix:")
+allocation = []
+for i in range(n):
+    row = list(map(int, input(f"{processes[i]}: ").split()))
+    allocation.append(row)
+
+print("\nEnter Maximum Matrix:")
+max_demand = []
+for i in range(n):
+    row = list(map(int, input(f"{processes[i]}: ").split()))
+    max_demand.append(row)
+
+print("\nEnter Available Resources:")
+available = list(map(int, input().split()))
+
+# -------- RUN --------
+safe, sequence = is_safe(processes, available, max_demand, allocation)
+
+print("\n--- RESULT ---")
+if safe:
+    print("System is in a SAFE state")
+    print("Safe sequence:", " -> ".join(sequence))
+    print("Explanation: All processes can complete without deadlock.")
+else:
+    print("System is NOT in a safe state")
+    print("Explanation: Deadlock may occur as no safe sequence exists.")
